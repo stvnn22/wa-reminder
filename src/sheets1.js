@@ -1,22 +1,10 @@
 const { google } = require('googleapis');
+const path = require('path');
 
-function getAuth() {
-  // Kalau ada GOOGLE_CREDENTIALS di env (Railway), pakai itu
-  // Kalau tidak, fallback ke file credentials.json (lokal)
-  if (process.env.GOOGLE_CREDENTIALS) {
-    const credentials = JSON.parse(process.env.GOOGLE_CREDENTIALS);
-    return new google.auth.GoogleAuth({
-      credentials,
-      scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-    });
-  }
-
-  const path = require('path');
-  return new google.auth.GoogleAuth({
-    keyFile: path.join(__dirname, '../config/credentials.json'),
-    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
-  });
-}
+const auth = new google.auth.GoogleAuth({
+  keyFile: path.join(__dirname, '../config/credentials.json'),
+  scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+});
 
 const SPREADSHEET_ID = process.env.SPREADSHEET_ID;
 const SHEET_NAME = process.env.SHEET_NAME || 'Tenant';
@@ -33,7 +21,6 @@ const SHEET_NAME = process.env.SHEET_NAME || 'Tenant';
  */
 async function getTenants() {
   try {
-    const auth = getAuth();
     const sheets = google.sheets({ version: 'v4', auth });
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
